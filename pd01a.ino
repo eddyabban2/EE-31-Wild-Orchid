@@ -40,7 +40,7 @@ void loop() {
   Serial.print("Potentiometer Value: ");
   Serial.println(p0Val);
 
-
+//hi!
   switch (p0Val) {
     case 0:
       Serial.println("on state");
