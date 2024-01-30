@@ -8,7 +8,7 @@ int p1Pin = A1;
 int p1Val;
 int runStateFlag = 0;
 int isTenHzFlag = 0;
-int orange = 12;
+int orange = 11;
 int interruptFlag = 0;
 
 //interrupt setup
@@ -61,10 +61,9 @@ void loop() {
     case 4:
       Serial.println("diagnostic state");
       diaState(5);
+      delay(1000);
+      diaState(8);
       break;
-
-
-
 
   }
  
@@ -94,9 +93,6 @@ void onState() {
   }
 }
 
-
-
-
 void offState() {
   //ALL LIGHTS OFF
   digitalWrite(red, LOW);
@@ -104,19 +100,26 @@ void offState() {
   digitalWrite(blue, LOW);
 }
 
-
-
-
 void runState() {
   //DECAY GREEN FOR 6 SECS, FLASH TWICE
   runStateFlag = 1;
   unsigned long initalMilli = millis();
   unsigned long prevMilli = initalMilli;
+  int orangeState = LOW;
+  digitalWrite(orange, orangeState);
   while(1)
   {
     unsigned long currMilli = millis();
     int greenValue = 255 - (int((float(currMilli - initalMilli) / float(6000)) * 255.0));
     analogWrite(green, greenValue);
+    analogWrite(blue, p1Val);
+    p1Val = analogRead(p1Pin)/4;
+    if(currMilli - prevMilli > (p1Val))
+    {
+      digitalWrite(orange, orangeState);
+      orangeState = not orangeState;
+      prevMilli = currMilli;
+    }
 
     if(interruptFlag == 1)
     {
@@ -128,6 +131,19 @@ void runState() {
       break;
     }
   }
+
+  for(int i = 0; i < 2; i++) {
+    p1Val = analogRead(p1Pin)/4;
+    digitalWrite(orange, HIGH);
+    analogWrite(blue, p1Val);
+    analogWrite(green, 127);
+    delay(250);
+    digitalWrite(orange, LOW);
+    analogWrite(green, 0);
+    delay(250);
+  }
+
+
   runStateFlag = 0;
 }
 void interruptState()
