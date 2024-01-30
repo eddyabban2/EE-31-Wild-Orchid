@@ -13,7 +13,7 @@ int interruptFlag = 0;
 
 //interrupt setup
 const byte interrupt1Pin = 2;
-const byte interrupt2Pin = 1;
+const byte interrupt2Pin = A5;
 
 
 
@@ -29,7 +29,7 @@ void setup() {
   pinMode(interrupt2Pin, INPUT_PULLUP); // configure interrupt pin
   Serial.begin(9600); // setup serial input
   attachInterrupt(digitalPinToInterrupt(interrupt1Pin), interruptSequence1, FALLING);
-  attachInterrupt(digitalPinToInterrupt(interrupt2Pin), interruptSequence2, RISING);
+  attachInterrupt(digitalPinToInterrupt(interrupt2Pin), interruptSequence2, CHANGE);
 }
 
 
@@ -128,28 +128,6 @@ void runState() {
       break;
     }
   }
-
-
-  // runStateFlag = 1;
-  // int output = 255;
-  // while(output > 0) {
-  //   p1Val = analogRead(p1Pin)/4;
-  //   // Serial.print("Potentiometer value: ");
-  //   // Serial.println(p1Val);
-  //   analogWrite(blue, p1Val);
-  //   analogWrite(green, output);
-  //   delay(23);
-  //   if(interuptOneFlag)
-  //   output -= 1;
-  // }
-  // for(int i = 0; i < 2; i++) {
-  //   p1Val = analogRead(p1Pin)/4;
-  //   analogWrite(blue, p1Val);
-  //   analogWrite(green, 127);
-  //   delay(250);
-  //   analogWrite(green, 0);
-  //   delay(250);
-  // }
   runStateFlag = 0;
 }
 void interruptState()
@@ -162,6 +140,8 @@ void interruptState()
   while(1)
   {
     unsigned long currMilli = millis();
+    Serial.print("switch #2 val: ");
+    Serial.println(analogRead(interrupt2Pin));
     if((isTenHzFlag == 0 && currMilli - prevMilli > 250) || (isTenHzFlag == 1 && currMilli - prevMilli > 25) )
     {
       blueState = not blueState;
@@ -178,6 +158,7 @@ void interruptState()
       break;
     }
   }
+  digitalWrite(blue, LOW);
   interruptFlag = 0;
 }
 
@@ -239,9 +220,10 @@ void interruptSequence1() {
 
 
 void interruptSequence2() {
-  if(digitalRead(interrupt2Pin) == LOW || runStateFlag == 0)
+  delayMicroseconds(1000);
+  if(analogRead(interrupt2Pin) < 100 || runStateFlag == 0)
   {
     return;
-  }                  
-  digitalWrite(red, isTenHzFlag);
+  }           
+  digitalWrite(red, isTenHzFlag);  
 }
