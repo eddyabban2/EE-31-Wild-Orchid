@@ -10,6 +10,7 @@
 
 int turn_const = 1000; // the amount of milliseconds that it takes for the board to turn 360 degrees
 void setup() {
+  Serial.begin(9600);
   pinMode(leftFor, OUTPUT);
   pinMode(leftRev, OUTPUT);
   pinMode(rightFor, OUTPUT);
@@ -22,11 +23,11 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("eddy was here");
-//  forward(1000);
-//  rev(1000);
-//  right(180);
-//  left(180);
+  //Serial.println("eddy was here");
+  forward(1000);
+ rev(1000);
+ right(180);
+ left(180);
 
 }
 
