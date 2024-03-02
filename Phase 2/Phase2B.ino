@@ -1,3 +1,5 @@
+// tutorial followed: https://lastminuteengineers.com/l293d-dc-motor-arduino-tutorial/
+
 // pin setup
 #define leftFor 2
 #define leftRev 3
