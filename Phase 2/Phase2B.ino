@@ -10,7 +10,7 @@
 
 
 
-int turn_const = 1000; // the amount of milliseconds that it takes for the board to turn 360 degrees
+double turn_const = 2670; // the amount of milliseconds that it takes for the board to turn 360 degrees
 void setup() {
   Serial.begin(9600);
   pinMode(leftFor, OUTPUT);
@@ -26,10 +26,18 @@ void setup() {
 
 void loop() {
   //Serial.println("eddy was here");
+  Serial.println("Forward");
   forward(1000);
- rev(1000);
- right(180);
- left(180);
+  delay(1000);
+  Serial.println("Reverse");
+  rev(1000);
+  delay(1000);
+  Serial.println("Right");
+  right(180);
+  delay(1000);
+  Serial.println("Left");
+  left(180);
+  delay(1000);
 
 }
 
@@ -40,6 +48,8 @@ void forward(int duration) // duration in sec
   digitalWrite(leftFor, HIGH);
   digitalWrite(rightFor, HIGH);
   delay(duration);
+  digitalWrite(leftFor, LOW);
+  digitalWrite(rightFor, LOW);
 }
 
 void rev(int duration) // duration in sec
@@ -49,24 +59,39 @@ void rev(int duration) // duration in sec
   digitalWrite(leftFor, LOW);
   digitalWrite(rightFor, LOW);
   delay(duration);
+  digitalWrite(leftRev, LOW);
+  digitalWrite(rightRev, LOW);
 }
 
 void right(int angle) // duration in sec
 {
+  analogWrite(rightEnable, 127);
+  analogWrite(leftEnable, 127);
   digitalWrite(leftRev, LOW);
   digitalWrite(rightRev, HIGH);
   digitalWrite(leftFor, HIGH);
   digitalWrite(rightFor, LOW);
-  int delay_time = (turn_const/360)*angle;
-  delay(delay_time);
+  double delay_time = (turn_const/360.0)*angle;
+  delay((int)delay_time);
+  digitalWrite(rightRev, LOW);
+  digitalWrite(leftFor, LOW);
+  analogWrite(leftEnable, 255);
+  analogWrite(rightEnable, 255);
 }
 
 void left(int angle)
 {
+  analogWrite(leftEnable, 127);
+  analogWrite(rightEnable, 127);
   digitalWrite(leftRev, HIGH);
   digitalWrite(rightRev, LOW);
   digitalWrite(leftFor, LOW);
   digitalWrite(rightFor, HIGH);
-  int delay_time = (turn_const/360)*angle;
-  delay(delay_time);
+  double delay_time = (turn_const/360.0)*angle;
+  delay((int)delay_time);
+  digitalWrite(leftRev, LOW);
+  digitalWrite(rightFor, LOW);
+  analogWrite(leftEnable, 255);
+  analogWrite(rightEnable, 255);
+
 }
