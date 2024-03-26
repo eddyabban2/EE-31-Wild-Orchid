@@ -10,7 +10,7 @@
 
 
 
-double turn_const = 2150; // the amount of milliseconds that it takes for the board to turn 360 degrees
+double turn_const = 2300; // the amount of milliseconds that it takes for the board to turn 360 degrees
 void setup() {
   Serial.begin(9600);
   pinMode(leftFor, OUTPUT);
@@ -40,12 +40,14 @@ void loop() {
   delay(1000);
   right(90);
   delay(1000);
+  left(90);
+  delay(1000);
   for(int i = 0; i < 4; i ++)
   {
-    turn_left(1000);
-    forward(700);
+    turn_left(500);
+    forward(100);
+    delay(1000);
   }
-  turn_left(1000);
   delay(1000);
 
 }
@@ -82,7 +84,7 @@ void right(int angle) // duration in sec
   digitalWrite(rightFor, LOW);
   double delay_time = (turn_const/360.0)*angle;
   Serial.println((int)delay_time);
-  delay((int)delay_time);
+  delay((int)delay_time - 100);
   digitalWrite(rightRev, LOW);
   digitalWrite(leftFor, LOW);
   analogWrite(leftEnable, 255);
