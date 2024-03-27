@@ -23,9 +23,28 @@ void setup() {
   analogWrite(leftEnable, 255);
   analogWrite(rightEnable, 255);
 
+  // Serial.println("eddy was here");
+  // Serial.println("Forward");
+  // forward(700);
+  // delay(1000);
+  // Serial.println("Reverse");
+  // rev(700);
+  // delay(1000);
+  // Serial.println("Right");
+  // pivot_right(180);
+  // delay(1000);
+  // Serial.println("Left");
+  // pivot_left(180);
+  // delay(1000);
+  // pivot_right(90);
+  // delay(1000);
+  // pivot_left(90);
+  // delay(1000);
+
+
   for(int i = 0; i < 4; i ++)
   {
-    turn_left(1400);
+    turn_left(1950);
     delay(500);
     forward(500);
     delay(1000);
