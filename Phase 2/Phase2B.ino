@@ -10,7 +10,7 @@
 
 
 
-double turn_const = 2500; // the amount of milliseconds that it takes for the board to turn 360 degrees
+double turn_const = 2800; // the amount of milliseconds that it takes for the board to turn 360 degrees
 void setup() {
   Serial.begin(9600);
   pinMode(leftFor, OUTPUT);
@@ -23,30 +23,33 @@ void setup() {
   analogWrite(leftEnable, 255);
   analogWrite(rightEnable, 255);
 
-  // Serial.println("eddy was here");
-  // Serial.println("Forward");
-  // forward(700);
-  // delay(1000);
-  // Serial.println("Reverse");
-  // rev(700);
-  // delay(1000);
-  // Serial.println("Right");
-  // pivot_right(180);
-  // delay(1000);
-  // Serial.println("Left");
-  // pivot_left(180);
-  // delay(1000);
-  // pivot_right(90);
-  // delay(1000);
-  // pivot_left(90);
-  // delay(1000);
+  Serial.println("eddy was here");
+  Serial.println("Forward");
+  forward(700);
+  delay(1000);
+  Serial.println("Reverse");
+  rev(700);
+
+  delay(1000);
+  Serial.println("Right");
+  pivot_right(180);
+  delay(1000);
+  Serial.println("Left");
+  pivot_left(180);
+  delay(1000);
+
+
+  pivot_right(100);
+  delay(1000);
+  pivot_left(100);
+  delay(1000);
 
 
   for(int i = 0; i < 4; i ++)
   {
-    turn_left(1950);
+    turn_left(2095);
     delay(500);
-    forward(500);
+    forward(400);
     delay(1000);
   }
   delay(1000);
@@ -87,6 +90,7 @@ void forward(int duration) // duration in sec
 
 void rev(int duration) // duration in sec
 {
+  analogWrite(rightEnable, 250);
   digitalWrite(leftRev, HIGH);
   digitalWrite(rightRev, HIGH);
   digitalWrite(leftFor, LOW);
@@ -94,6 +98,7 @@ void rev(int duration) // duration in sec
   delay(duration);
   digitalWrite(leftRev, LOW);
   digitalWrite(rightRev, LOW);
+  analogWrite(rightEnable, 255);
 }
 
 void pivot_right(int angle) // duration in sec
