@@ -10,7 +10,7 @@
 
 
 
-double turn_const = 2800; // the amount of milliseconds that it takes for the board to turn 360 degrees
+double turn_const = 2900; // the amount of milliseconds that it takes for the board to turn 360 degrees
 void setup() {
   Serial.begin(9600);
   pinMode(leftFor, OUTPUT);
@@ -90,7 +90,7 @@ void forward(int duration) // duration in sec
 
 void rev(int duration) // duration in sec
 {
-  analogWrite(rightEnable, 250);
+  analogWrite(rightEnable, 240);
   digitalWrite(leftRev, HIGH);
   digitalWrite(rightRev, HIGH);
   digitalWrite(leftFor, LOW);
