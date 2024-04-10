@@ -1,10 +1,15 @@
 Team Pin Outs
-- Red LED Pin 10
-- Ambient Light Sensor A2
-- Color Pin A1
-- Left Motor Forward 2
-- Left Motor Reverse 3
-- Left Motor Enable 5
-- Right Motor Forward 7
-- Right Motor Reverse 8
-- Right Motor Enable 9
+#define redPin 10
+#define bluePin 11
+#define batteryIndicatorLED 12 // (orange)
+#define dayIndicatorLED 13 // (yellow)
+#define ambientLightPin A2
+#define colorPin A1
+#define batteryPin A0
+#define leftFor 2
+#define leftRev 3
+#define leftEnable 5
+#define rightFor 7
+#define rightRev 8
+#define rightEnable 9 
+
