@@ -35,16 +35,16 @@ void setup() {
   analogWrite(rightEnable, 255);
 }
 void loop() {
-  // detecter_trial();
+  detecter_trial();
   // movement_trial();
   // forward(1000000);
   // color_test();
   // determine_collision();
-  collision_test();
+  // collision_test();
 }
 void detecter_trial() {
-  // battery_reading();
-  determine_day();
+  battery_reading();
+  // determine_day();
 }
 
 void collision_test()
@@ -65,7 +65,7 @@ void collision_test()
 bool determine_collision()
 {
   int reading = analogRead(IRDector);
-  return reading > 70;
+  return reading > 350;
 }
 void color_test() {
   while (true) {
@@ -91,10 +91,13 @@ void color_test() {
 
   //   int blue_reading = take_reading(HIGH, LOW);
   //   int red_reading = take_reading(LOW, HIGH);
+  //   int ambient_light_reading = analogRead(ambientLightPin);
 
   //   Serial.print(blue_reading);
   //   Serial.print(", ");
-  //   Serial.println(red_reading);
+  //   Serial.print(red_reading);
+  //   Serial.print(", ");
+  //   Serial.println(ambient_light_reading);
 
   // }
 
@@ -132,8 +135,8 @@ bool battery_reading() {
   const double battery_fraction = 5.0 / 1023.0;
 
   int reading = analogRead(batteryPin);
-  Serial.print("Raw reading: ");
-  Serial.println(reading);
+  // Serial.print("Raw reading: ");
+  // Serial.println(reading);
 
   double voltage = reading * battery_fraction;
   Serial.print("battery voltage: ");
@@ -148,6 +151,7 @@ bool battery_reading() {
 
   digitalWrite(batteryIndicatorLED, LOW);
   return true;
+  
 }
 
 bool determine_day() {
@@ -191,8 +195,8 @@ bool determine_red() {
   int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
 
-  bool blue_condition = (blue_reading >= 30) and (blue_reading <= 109);
-  bool red_condition = (red_reading >= 130) and (red_reading <= 170);
+  bool blue_condition = (blue_reading >= 5) and (blue_reading <= 15);
+  bool red_condition = (red_reading >= 50) and (red_reading <= 75);
   bool output = (blue_condition) and (red_condition);
   
   // Serial.print("Blue and Red Readings: ");
@@ -209,14 +213,14 @@ bool determine_yellow() {
   int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
 
-  bool blue_condition = (blue_reading >= 110) and (blue_reading <= 180);
-  bool red_condition = (red_reading >= 171) and (red_reading <= 260);
+  bool blue_condition = (blue_reading >= 16) and (blue_reading <= 30);
+  bool red_condition = (red_reading >= 76) and (red_reading <= 100);
   bool output = (blue_condition) and (red_condition);
   
-  Serial.print("Blue and Red Readings: ");
-  Serial.print(blue_reading);
-  Serial.print(", ");
-  Serial.println(red_reading);
+  // Serial.print("Blue and Red Readings: ");
+  // Serial.print(blue_reading);
+  // Serial.print(", ");
+  // Serial.println(red_reading);
   
   return output;
 
