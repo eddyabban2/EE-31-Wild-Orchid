@@ -35,33 +35,45 @@ void setup() {
 }
 void loop() {
   // detecter_trial();
-  movement_trial();
+  // movement_trial();
   // forward(1000000);
-  // color_test();
+  color_test();
 }
 void detecter_trial() {
-  battery_reading();
+  // battery_reading();
   determine_day();
 }
 void color_test() {
   while (true) {
+
     bool blue = determine_blue();
     bool red = determine_red();
     bool yellow = determine_yellow();
     bool black = determine_black();
+
     if (blue) {
-      Serial.println("blue");
-    }
-    if (yellow) {
-      Serial.println("Yellow");
-    }
-    if (red) {
+      Serial.println("Blue");
+    } else if (red) {
       Serial.println("Red");
-    }
-    if (black) {
+    } else if (yellow) {
+      Serial.println("Yellow");
+    } else if (black) {
       Serial.println("Black");
     }
+
   }
+
+  // while(true) { // is here for troubleshooting/reading data
+
+  //   int blue_reading = take_reading(HIGH, LOW);
+  //   int red_reading = take_reading(LOW, HIGH);
+
+  //   Serial.print(blue_reading);
+  //   Serial.print(", ");
+  //   Serial.println(red_reading);
+
+  // }
+
 }
 
 
@@ -93,28 +105,33 @@ void movement_trial() {
   }
 }
 bool battery_reading() {
+  const double battery_fraction = 5.0 / 1023.0;
+
   int reading = analogRead(batteryPin);
   Serial.print("Raw reading: ");
   Serial.println(reading);
-  const double battery_fraction = 5.0 / 1023.0;
-  Serial.print("battery fraction: ");
-  Serial.println(battery_fraction);
 
   double voltage = reading * battery_fraction;
   Serial.print("battery voltage: ");
   Serial.println(voltage);
-  if (voltage < 1) {
+
+  delay(1000);
+
+  if (voltage < 2) {
     digitalWrite(batteryIndicatorLED, HIGH);
     return false;
   }
+
+  digitalWrite(batteryIndicatorLED, LOW);
   return true;
 }
 
 bool determine_day() {
-  int threshold = 200;
+  int threshold = 250;
   int reading = analogRead(ambientLightPin);
   Serial.print("ambient light reading:");
   Serial.println(reading);
+
   if (reading > threshold) {
     // blink if day
     for (int i = 0; i < 10; i++) {
@@ -126,60 +143,78 @@ bool determine_day() {
   } else {
     digitalWrite(dayIndicatorLED, HIGH);
   }
+
   return reading > threshold;
 }
 
 bool determine_blue() {
-  float blue_reading = take_reading(HIGH, LOW);
+
+  int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
-  bool output = red_reading > 25 and red_reading < 50 and blue_reading > 20 and blue_reading < 60;
-  // Serial.print("blue_reading: ");
-  // Serial.println(blue_reading);
-  // Serial.print("red_reading:");
-  // Serial.println(red_reading);
-  // Serial.println(output);
+  int difference = red_reading - blue_reading;
+
+  bool output = (difference >= 5) and (difference <= 16);
+
+  // Serial.print("Difference Reading: ");
+  // Serial.println(difference);
+
   return output;
+
 }
+
 bool determine_red() {
-  float blue_reading = take_reading(HIGH, LOW);
+
+  int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
-  bool output = red_reading > 100 and red_reading < 140 and blue_reading < 30;
-  // Serial.print("blue_reading: ");
-  // Serial.println(blue_reading);
-  // Serial.print("red_reading:");
+
+  bool blue_condition = (blue_reading >= 30) and (blue_reading <= 109);
+  bool red_condition = (red_reading >= 130) and (red_reading <= 170);
+  bool output = (blue_condition) and (red_condition);
+  
+  // Serial.print("Blue and Red Readings: ");
+  // Serial.print(blue_reading);
+  // Serial.print(", ");
   // Serial.println(red_reading);
-  // Serial.println(output);
+
   return output;
+
 }
 // both-103 ish
 bool determine_yellow() {
-  Serial.println("Determining yellow");
-  float blue_reading = take_reading(HIGH, LOW);
+  
+  int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
-  bool output = red_reading > 100 and red_reading < 130 and blue_reading > 10 and blue_reading < 30;
-  Serial.print("blue_reading: ");
-  Serial.println(blue_reading);
-  Serial.print("red_reading:");
+
+  bool blue_condition = (blue_reading >= 110) and (blue_reading <= 180);
+  bool red_condition = (red_reading >= 171) and (red_reading <= 260);
+  bool output = (blue_condition) and (red_condition);
+  
+  Serial.print("Blue and Red Readings: ");
+  Serial.print(blue_reading);
+  Serial.print(", ");
   Serial.println(red_reading);
-  Serial.println(output);
+  
   return output;
+
 }
 
 bool determine_black() {
-  // Serial.println("Determining black");
-  float blue_reading = take_reading(HIGH, LOW);
+  
+  int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
-  bool output = red_reading > 30 and red_reading < 50 and blue_reading < 20;
-  // Serial.print("blue_reading: ");
-  // Serial.println(blue_reading);
-  // Serial.print("red_reading:");
-  // Serial.println(red_reading);
-  // Serial.println(output);
+  int difference = red_reading - blue_reading;
+
+  bool output = (difference >= 17) and (difference <= 35);
+
+  // Serial.print("Difference Reading: ");
+  // Serial.println(difference);
+
   return output;
+
 }
 
 
-float take_reading(bool blue, bool red) {
+int take_reading(bool blue, bool red) {
   digitalWrite(bluePin, blue);
   digitalWrite(redPin, red);
   delay(20);
@@ -263,4 +298,11 @@ void turn_left(int duration) {
   analogWrite(leftEnable, 255);
   analogWrite(rightEnable, 255);
   digitalWrite(dayIndicatorLED, LOW);
+}
+
+void stop_moving() {
+
+  analogWrite(leftEnable, 0);
+  analogWrite(rightEnable, 0);
+
 }
