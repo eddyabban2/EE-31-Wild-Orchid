@@ -3,6 +3,7 @@ Team Pin Outs
 #define bluePin 11
 #define batteryIndicatorLED 12 // (orange)
 #define dayIndicatorLED 13 // (yellow)
+#define collisionDetector A3
 #define ambientLightPin A2
 #define colorPin A1
 #define batteryPin A0
