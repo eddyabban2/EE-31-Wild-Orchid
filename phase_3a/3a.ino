@@ -57,7 +57,7 @@ void collision_test()
     }
     else
     {
-      reverse(1);
+      rev(1);
     }
   }
 }
