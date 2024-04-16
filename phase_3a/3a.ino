@@ -2,6 +2,7 @@
 #define bluePin 11
 #define batteryIndicatorLED 12
 #define dayIndicatorLED 13
+#define IRDector A3
 #define ambientLightPin A2
 #define colorPin A1
 #define batteryPin A0
@@ -37,11 +38,34 @@ void loop() {
   // detecter_trial();
   // movement_trial();
   // forward(1000000);
-  color_test();
+  // color_test();
+  // determine_collision();
+  collision_test();
 }
 void detecter_trial() {
   // battery_reading();
   determine_day();
+}
+
+void collision_test()
+{
+  while(true)
+  {
+    if(not determine_collision())
+    {
+      forward(10);
+    }
+    else
+    {
+      reverse(1);
+    }
+  }
+}
+
+bool determine_collision()
+{
+  int reading = analogRead(IRDector);
+  return reading > 70;
 }
 void color_test() {
   while (true) {
