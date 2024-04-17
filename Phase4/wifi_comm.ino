@@ -60,7 +60,6 @@ void setup() {
 void loop() {
   // if there are incoming bytes available
   // from the server, read them and print them:
-  Serial.println("Entered loop");
   while (client.available()) {
     char c = client.read();
     Serial.write(c);
@@ -109,11 +108,6 @@ void POST(const char theRoute[], char *bodyMessage) {
 }
 
 void GET(const char theRoute[]) {
-  while(!client.connect(server, portNumber)) {
-    client.connect(server, portNumber);
-    Serial.println("retrying");
-  }
-
   if (client.connect(server, portNumber)) {
     Serial.println("Entered GET");
   // Make a HTTP GET request:
@@ -126,11 +120,9 @@ void GET(const char theRoute[]) {
     // place in appropriate form and variable
     // if the server's disconnected, stop the client:
     if (!client.connected()) {
-      Serial.println("hi");
       client.stop();
     }
   }
-  Serial.println(client.connected());
 }
 
 
