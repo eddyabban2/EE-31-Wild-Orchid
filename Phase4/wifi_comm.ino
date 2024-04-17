@@ -6,9 +6,10 @@ char ssid[] = "junior";        // your network SSID (name)
 char pass[] = "designdesign";  // your network password
 char server[] = "ee31.ece.tufts.edu";  // server
 int portNumber = 80;
-//char server[] = "www.google.com";
 
 const char UID[] = "F392FC86D8D7";
+
+char postBody[] = "data=eddywashere";
 
 int status = WL_IDLE_STATUS;
 
@@ -43,15 +44,14 @@ void setup() {
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
     status = WiFi.begin(ssid, pass);
     // wait 10 seconds for connection:
-    delay(10000);
+    delay(1000);
   }
 
   Serial.println("Connected to wifi");
   printWifiStatus();
   Serial.println("\nStarting connection to server...");
 
-  POST(postRoute, "We did it !! YAY :)");
-  delay(5000);
+  // POST(postRoute, postBody);
   GET(getRoute);
 
 
@@ -60,9 +60,10 @@ void setup() {
 void loop() {
   // if there are incoming bytes available
   // from the server, read them and print them:
+  
   while (client.available()) {
     char c = client.read();
-    Serial.write(c);
+    Serial.write(c); 
   }
 
   // if the server's disconnected, stop the client:
@@ -95,26 +96,29 @@ void printWifiStatus() {
 }
 
 void POST(const char theRoute[], char *bodyMessage) {
-  Serial.println("Entered POST");
-  client.println(theRoute);
-  client.print("Host: ");
-  client.println(server);
-  client.println("Content-Type: application/x-www-form-urlencoded");
-  client.print("Content-Length: ");
-  int postBodyLength = strlen(bodyMessage);
-  client.println(postBodyLength);
-  client.println();
-  client.print(bodyMessage);
+  if(client.connect(server, portNumber))
+  {
+    //Serial.println("Entered POST");
+    client.println(theRoute);
+    client.print("Host: ");
+    client.println(server);
+    client.println("Content-Type: application/x-www-form-urlencoded");
+    client.print("Content-Length: ");
+    int postBodyLength = strlen(bodyMessage);
+    client.println(postBodyLength);
+    client.println();
+    client.print(bodyMessage);
+  }
 }
 
 void GET(const char theRoute[]) {
   if (client.connect(server, portNumber)) {
-    Serial.println("Entered GET");
+    //Serial.println("Entered GET");
   // Make a HTTP GET request:
     client.println(theRoute);
     client.print("Host: ");
     client.println(server);
-    client.println("Connection: close");
+    //client.println("Connection: close");
     client.println();
     // get the message from the server
     // place in appropriate form and variable
