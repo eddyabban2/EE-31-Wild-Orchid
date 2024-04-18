@@ -36,8 +36,8 @@ void setup() {
 }
 void loop() {
   // day_detecter_trial();
-  // movement_trial();
-  color_test();
+  movement_trial();
+  // color_test();
   // determine_collision();
   // collision_test();
 }
@@ -76,18 +76,19 @@ void color_test() {
 
     if (blue) {
       Serial.println("Blue");
-    } else if (red) {
+    } if (red) {
       Serial.println("Red");
-    } else if (yellow) {
+    } if (yellow) {
       Serial.println("Yellow");
-    } else if (black) {
+    } if (black) {
       Serial.println("Black");
     }
   }
 }
 
 
-void movement_trial() {
+void movement_trial() 
+{
   const int forward_const = 50;
   while (true) {
     Serial.println("on blue");
@@ -97,20 +98,23 @@ void movement_trial() {
     }
     Serial.println("off blue");
     delay(200);
-    pivot_left(60);
+    forward(250);
+    pivot_left(45);
+    delay(100);
+    Serial.println("looking for yellow");
     while (determine_yellow()) {
       Serial.println("on yellow");
       forward(forward_const);
       delay(20);
     }
-    pivot_left(60);
-    Serial.println("found red");
-    delay(200);
-    while (determine_red()) {
-      Serial.println("red yellow");
-      forward(forward_const);
-      delay(20);
-    }
+    // pivot_left(45);
+    // Serial.println("found red");
+    // delay(200);
+    // while (determine_red()) {
+    //   Serial.println("red yellow");
+    //   forward(forward_const);
+    //   delay(20);
+    // }
     while (true);
   }
 }
@@ -162,9 +166,13 @@ bool determine_blue() {
   int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
   int difference = red_reading - blue_reading;
-
-  bool output = (difference >= 5) and (difference <= 15);
-
+  bool blue_condition = (blue_reading >= 25) and (blue_reading <= 40);
+  bool red_condition = (red_reading >= 50) and (red_reading <= 70);
+  bool output = (difference >= 5) and (difference <= 16);
+  Serial.print("Blue and Red Readings: ");
+  Serial.print(blue_reading);
+  Serial.print(", ");
+  Serial.println(red_reading);
   // Serial.print("Difference Reading: ");
   // Serial.println(difference);
 
@@ -177,8 +185,8 @@ bool determine_red() {
   int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
 
-  bool blue_condition = (blue_reading >= 0) and (blue_reading <= 20);
-  bool red_condition = (red_reading >= 50) and (red_reading <= 70);
+  bool blue_condition = (blue_reading >= 20) and (blue_reading <= 40);
+  bool red_condition = (red_reading >= 70) and (red_reading <= 100);
   bool output = (blue_condition) and (red_condition);
   
   // Serial.print("Blue and Red Readings: ");
@@ -195,17 +203,17 @@ bool determine_yellow() {
   int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
 
-  bool blue_condition = (blue_reading >= 20) and (blue_reading <= 40);
-  bool red_condition = (red_reading >= 80) and (red_reading <= 100);
+  bool blue_condition = (blue_reading >= 30) and (blue_reading <= 60);
+  bool red_condition = (red_reading >= 95) and (red_reading <= 115);
   bool output = (blue_condition) and (red_condition);
-  int diff = red_reading - blue_reading;
+  bool diff = red_reading - blue_reading;
   
   Serial.print("Blue and Red Readings: ");
   Serial.print(blue_reading);
   Serial.print(", ");
   Serial.println(red_reading);
   
-  return output and (diff < 65) and (diff >55);
+  return output;
 
 }
 
@@ -213,14 +221,14 @@ bool determine_black() {
   
   int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
+  int difference = red_reading - blue_reading;
 
-  bool blue_condition = (blue_reading >= 4) and (blue_reading <= 25);
-  bool red_condition = (red_reading >= 20) and (red_reading <= 50);
-  bool output = (blue_condition) and (red_condition);
-  int diff = red_reading - blue_reading;
-  
-  
-  return output and (diff > 11) and (diff < 20);
+  bool output = (difference >= 17) and (difference <= 35);
+
+  // Serial.print("Difference Reading: ");
+  // Serial.println(difference);
+
+  return output;
 
 }
 
@@ -281,7 +289,7 @@ void pivot_right(int angle)  // duration in sec
 }
 
 void pivot_left(int angle) {
-  analogWrite(leftEnable, 20);
+  analogWrite(leftEnable, 255);
   analogWrite(rightEnable, 255);
   digitalWrite(leftRev, HIGH);
   digitalWrite(rightRev, LOW);
@@ -297,7 +305,7 @@ void pivot_left(int angle) {
 
 void turn_left(int duration) {
   digitalWrite(dayIndicatorLED, HIGH);
-  analogWrite(leftEnable, 70);
+  analogWrite(leftEnable, 20);
   analogWrite(rightEnable, 200);
   digitalWrite(leftRev, LOW);
   digitalWrite(rightRev, LOW);
