@@ -14,6 +14,7 @@
 #define rightEnable 9
 
 double turn_const = 2500;
+enum color {red, blue, yellow, black, none};
 
 void setup() {
   Serial.begin(9600);
@@ -36,8 +37,9 @@ void setup() {
 }
 void loop() {
   // day_detecter_trial();
-  movement_trial();
-  // color_test();
+  // movement_trial();
+  determine_color();
+  delay(500);
   // determine_collision();
   // collision_test();
 }
@@ -66,25 +68,7 @@ bool determine_collision()
   int reading = analogRead(IRDector);
   return reading > 70;
 }
-void color_test() {
-  while (true) {
 
-    bool blue = determine_blue();
-    bool red = determine_red();
-    bool yellow = determine_yellow();
-    bool black = determine_black();
-
-    if (blue) {
-      Serial.println("Blue");
-    } if (red) {
-      Serial.println("Red");
-    } if (yellow) {
-      Serial.println("Yellow");
-    } if (black) {
-      Serial.println("Black");
-    }
-  }
-}
 
 
 void movement_trial() 
@@ -166,9 +150,9 @@ bool determine_blue() {
   int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
   int difference = red_reading - blue_reading;
-  bool blue_condition = (blue_reading >= 25) and (blue_reading <= 40);
-  bool red_condition = (red_reading >= 50) and (red_reading <= 70);
-  bool output = (difference >= 5) and (difference <= 16);
+  bool blue_condition = (blue_reading >= 40) and (blue_reading <= 50);
+  bool red_condition = (red_reading >= 60) and (red_reading <= 70);
+  bool output = (difference >= 15) and (difference <= 25);
   Serial.print("Blue and Red Readings: ");
   Serial.print(blue_reading);
   Serial.print(", ");
@@ -230,6 +214,46 @@ bool determine_black() {
 
   return output;
 
+}
+
+color determine_color() {
+    int brightness = 0;
+    int blue_reading = take_reading(HIGH, LOW)  + brightness;
+    int red_reading = take_reading(LOW, HIGH) + brightness;
+    int diff = red_reading - blue_reading;
+
+    Serial.print("Blue and Red Readings: ");
+    Serial.print(blue_reading);
+    Serial.print(", ");
+    Serial.println(red_reading);
+
+    if(red_reading >= 5 and red_reading <= 11) {
+      if (diff >= 15 and diff <= 21) {
+        Serial.println("blue");
+        return blue;
+      }
+      else if (diff >= 14 and diff <= 20) {
+        Serial.println("black");
+        return black;
+      }
+    }
+    else if (red_reading >= 77 and red_reading <= 87) {
+      if (diff >= 54 and diff <=60) {
+        Serial.println("yellow");
+        return yellow;
+      }
+    }
+    else if (red_reading >= 53 and red_reading <= 63) {
+      if (diff >= 47  and diff <= 53) {
+        Serial.println("yellow");
+        return yellow;
+      }
+    }
+    else {
+      Serial.print("Change brightness by ");
+      Serial.println(red_reading - 24);
+      return none;
+    }
 }
 
 
