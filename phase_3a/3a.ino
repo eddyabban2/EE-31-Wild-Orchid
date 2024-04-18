@@ -36,8 +36,8 @@ void setup() {
 }
 void loop() {
   // day_detecter_trial();
-  movement_trial();
-  // color_test();
+  // movement_trial();
+  color_test();
   // determine_collision();
   // collision_test();
 }
@@ -163,7 +163,7 @@ bool determine_blue() {
   int red_reading = take_reading(LOW, HIGH);
   int difference = red_reading - blue_reading;
 
-  bool output = (difference >= 5) and (difference <= 16);
+  bool output = (difference >= 5) and (difference <= 15);
 
   // Serial.print("Difference Reading: ");
   // Serial.println(difference);
@@ -195,17 +195,17 @@ bool determine_yellow() {
   int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
 
-  bool blue_condition = (blue_reading >= 10) and (blue_reading <= 30);
-  bool red_condition = (red_reading >= 70) and (red_reading <= 100);
+  bool blue_condition = (blue_reading >= 20) and (blue_reading <= 40);
+  bool red_condition = (red_reading >= 80) and (red_reading <= 100);
   bool output = (blue_condition) and (red_condition);
-  bool diff = red_reading - blue_reading;
+  int diff = red_reading - blue_reading;
   
   Serial.print("Blue and Red Readings: ");
   Serial.print(blue_reading);
   Serial.print(", ");
   Serial.println(red_reading);
   
-  return output;
+  return output and (diff < 65) and (diff >55);
 
 }
 
@@ -213,14 +213,14 @@ bool determine_black() {
   
   int blue_reading = take_reading(HIGH, LOW);
   int red_reading = take_reading(LOW, HIGH);
-  int difference = red_reading - blue_reading;
 
-  bool output = (difference >= 17) and (difference <= 35);
-
-  // Serial.print("Difference Reading: ");
-  // Serial.println(difference);
-
-  return output;
+  bool blue_condition = (blue_reading >= 4) and (blue_reading <= 25);
+  bool red_condition = (red_reading >= 20) and (red_reading <= 50);
+  bool output = (blue_condition) and (red_condition);
+  int diff = red_reading - blue_reading;
+  
+  
+  return output and (diff > 11) and (diff < 20);
 
 }
 
