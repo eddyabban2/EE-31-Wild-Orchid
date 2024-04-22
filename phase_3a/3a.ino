@@ -1,3 +1,6 @@
+#include <SPI.h>
+#include <WiFiNINA.h>
+
 #define redPin 10
 #define bluePin 11
 #define batteryIndicatorLED 12
@@ -12,6 +15,22 @@
 #define rightFor 7
 #define rightRev 8
 #define rightEnable 9
+
+char ssid[] = "junior";        // your network SSID (name)
+char pass[] = "designdesign";  // your network password
+char server[] = "ee31.ece.tufts.edu";  // server
+int portNumber = 80;
+
+const char UID[] = "F392FC86D8D7";
+
+char postBody[] = "red=eddywashere";
+
+int status = WL_IDLE_STATUS;
+
+const char getRoute[] = "GET /F392FC86D8D7/F392FC86D8D7 HTTP/1.1";
+const char postRoute[] = "POST /F392FC86D8D7/F392FC86D8D7 HTTP/1.1";
+
+WiFiClient client;
 
 double turn_const = 2500;
 enum color {red, blue, yellow, black, none};
@@ -34,18 +53,40 @@ void setup() {
   pinMode(colorPin, INPUT);
   analogWrite(leftEnable, 255);
   analogWrite(rightEnable, 255);
+  // setupWifi();
 }
 void loop() {
   // day_detecter_trial();
   // movement_trial();
-  determine_color();
-  delay(500);
+  // determine_color();
+  // delay(500);
+  // delay(10000000);
   // determine_collision();
   // collision_test();
+  battery_detecter_trial();
 }
 void day_detecter_trial() {
   // battery_reading();
-  determine_day();
+  if (determine_day()) {
+    // blink if day
+    digitalWrite(dayIndicatorLED, HIGH);
+    delay(100);
+    digitalWrite(dayIndicatorLED, LOW);
+    delay(100);
+    
+  } else {
+    digitalWrite(dayIndicatorLED, HIGH);
+  }
+}
+
+void battery_detecter_trial()
+{
+  if (battery_reading()) {
+    digitalWrite(batteryIndicatorLED, LOW);
+    
+  } else {
+    digitalWrite(batteryIndicatorLED, HIGH);
+  }
 }
 
 void collision_test()
@@ -58,7 +99,9 @@ void collision_test()
     }
     else
     {
-      rev(1);
+      pivot_left(110);
+      forward(10);
+      while(true);
     }
   }
 }
@@ -66,7 +109,12 @@ void collision_test()
 bool determine_collision()
 {
   int reading = analogRead(IRDector);
-  return reading > 70;
+  bool output = reading > 350;
+  Serial.print("reading: ");
+  Serial.println(reading);
+  Serial.print("output: ");
+  Serial.println(output);
+  return output;
 }
 
 
@@ -76,183 +124,141 @@ void movement_trial()
   const int forward_const = 50;
   while (true) {
     Serial.println("on blue");
-    while (determine_blue()) {
-      Serial.println("is blue");
+    while (determine_color() == blue or determine_color() == blue or determine_color() == blue) {
       forward(forward_const);
+      Serial.println("forward on blue");
     }
     Serial.println("off blue");
     delay(200);
-    forward(250);
+    forward(325);
     pivot_left(45);
     delay(100);
     Serial.println("looking for yellow");
-    while (determine_yellow()) {
-      Serial.println("on yellow");
+    while (determine_color() == yellow or determine_color() == yellow or determine_color() == yellow) {
       forward(forward_const);
-      delay(20);
+      Serial.println("forward on yellow");
     }
-    // pivot_left(45);
-    // Serial.println("found red");
-    // delay(200);
-    // while (determine_red()) {
-    //   Serial.println("red yellow");
-    //   forward(forward_const);
-    //   delay(20);
-    // }
+    forward(220);
+    pivot_left(55);
+    Serial.println("found red");
+    delay(200);
+    while (determine_color() == red or determine_color() == red or determine_color() == red) {
+      forward(forward_const);
+      Serial.println("forward on red");
+    }
     while (true);
   }
 }
 bool battery_reading() {
   const double battery_fraction = 5.0 / 1023.0;
-
+  const int threshold = 3;
   int reading = analogRead(batteryPin);
   Serial.print("Raw reading: ");
   Serial.println(reading);
 
   double voltage = reading * battery_fraction;
+  bool output = voltage > threshold;
   Serial.print("battery voltage: ");
   Serial.println(voltage);
-
-  delay(1000);
-
-  if (voltage < 2) {
-    digitalWrite(batteryIndicatorLED, HIGH);
-    return false;
-  }
-
-  digitalWrite(batteryIndicatorLED, LOW);
-  return true;
+  return output;
 }
 
 bool determine_day() {
-  int threshold = 250;
+  int threshold = 175;
   int reading = analogRead(ambientLightPin);
+  bool output = reading > threshold;
   Serial.print("ambient light reading:");
   Serial.println(reading);
-
-  if (reading > threshold) {
-    // blink if day
-    for (int i = 0; i < 10; i++) {
-      digitalWrite(dayIndicatorLED, HIGH);
-      delay(100);
-      digitalWrite(dayIndicatorLED, LOW);
-      delay(100);
-    }
-  } else {
-    digitalWrite(dayIndicatorLED, HIGH);
-  }
-
-  return reading > threshold;
-}
-
-bool determine_blue() {
-
-  int blue_reading = take_reading(HIGH, LOW);
-  int red_reading = take_reading(LOW, HIGH);
-  int difference = red_reading - blue_reading;
-  bool blue_condition = (blue_reading >= 40) and (blue_reading <= 50);
-  bool red_condition = (red_reading >= 60) and (red_reading <= 70);
-  bool output = (difference >= 15) and (difference <= 25);
-  Serial.print("Blue and Red Readings: ");
-  Serial.print(blue_reading);
-  Serial.print(", ");
-  Serial.println(red_reading);
-  // Serial.print("Difference Reading: ");
-  // Serial.println(difference);
-
   return output;
-
 }
 
-bool determine_red() {
 
-  int blue_reading = take_reading(HIGH, LOW);
-  int red_reading = take_reading(LOW, HIGH);
-
-  bool blue_condition = (blue_reading >= 20) and (blue_reading <= 40);
-  bool red_condition = (red_reading >= 70) and (red_reading <= 100);
-  bool output = (blue_condition) and (red_condition);
-  
-  // Serial.print("Blue and Red Readings: ");
-  // Serial.print(blue_reading);
-  // Serial.print(", ");
-  // Serial.println(red_reading);
-
-  return output;
-
-}
 // both-103 ish
-bool determine_yellow() {
-  
-  int blue_reading = take_reading(HIGH, LOW);
-  int red_reading = take_reading(LOW, HIGH);
-
-  bool blue_condition = (blue_reading >= 30) and (blue_reading <= 60);
-  bool red_condition = (red_reading >= 95) and (red_reading <= 115);
-  bool output = (blue_condition) and (red_condition);
-  bool diff = red_reading - blue_reading;
-  
-  Serial.print("Blue and Red Readings: ");
-  Serial.print(blue_reading);
-  Serial.print(", ");
-  Serial.println(red_reading);
-  
-  return output;
-
-}
-
-bool determine_black() {
-  
-  int blue_reading = take_reading(HIGH, LOW);
-  int red_reading = take_reading(LOW, HIGH);
-  int difference = red_reading - blue_reading;
-
-  bool output = (difference >= 17) and (difference <= 35);
-
-  // Serial.print("Difference Reading: ");
-  // Serial.println(difference);
-
-  return output;
-
-}
 
 color determine_color() {
     int brightness = 0;
     int blue_reading = take_reading(HIGH, LOW)  + brightness;
     int red_reading = take_reading(LOW, HIGH) + brightness;
+    int both_reading = take_reading(HIGH, HIGH) + brightness;
     int diff = red_reading - blue_reading;
+    int acceptable_range = 10;
 
-    Serial.print("Blue and Red Readings: ");
+    int blue_blue_read = 6;
+    int blue_red_read = 13;
+    int blue_both_read = 31;
+
+    int red_blue_read = 5;
+    int red_red_read = 51;
+    int red_both_read = 63;
+
+    int yellow_blue_read = 15;
+    int yellow_red_read = 66;
+    int yellow_both_read = 90;
+
+    int black_blue_read = 5;
+    int black_red_read = 21;
+    int black_both_read = 28;
+
+    Serial.print("Blue, Red, Both Readings: ");
     Serial.print(blue_reading);
     Serial.print(", ");
-    Serial.println(red_reading);
+    Serial.print(red_reading);
+    Serial.print(", ");
+    Serial.println(both_reading);
 
-    if(red_reading >= 5 and red_reading <= 11) {
-      if (diff >= 15 and diff <= 21) {
-        Serial.println("blue");
-        return blue;
-      }
-      else if (diff >= 14 and diff <= 20) {
-        Serial.println("black");
-        return black;
-      }
-    }
-    else if (red_reading >= 77 and red_reading <= 87) {
-      if (diff >= 54 and diff <=60) {
-        Serial.println("yellow");
-        return yellow;
-      }
-    }
-    else if (red_reading >= 53 and red_reading <= 63) {
-      if (diff >= 47  and diff <= 53) {
-        Serial.println("yellow");
-        return yellow;
+
+    if(abs(red_reading - blue_red_read) <= acceptable_range)
+    {
+      if(abs(blue_reading - blue_blue_read) <= acceptable_range)
+      {
+        if(abs(both_reading - blue_both_read) <= acceptable_range)
+        {
+          if(diff < 15)
+          {
+            Serial.println("blue");
+            return blue;
+          }
+        }
       }
     }
-    else {
-      Serial.print("Change brightness by ");
-      Serial.println(red_reading - 24);
-      return none;
+    if(abs(red_reading - red_red_read) <= acceptable_range)
+    {
+      if(abs(blue_reading - red_blue_read) <= acceptable_range)
+      {
+        if(abs(both_reading - red_both_read) <= acceptable_range)
+        {
+          Serial.println("red");
+          return red;
+        }
+      }
+    }
+    if(abs(red_reading - yellow_red_read) <= acceptable_range)
+    {
+      // Serial.println("value matched yellow");
+      if(abs(blue_reading - yellow_blue_read) <= acceptable_range)
+      {
+        if(abs(both_reading - yellow_both_read) <= acceptable_range)
+        {
+          Serial.println("yellow");
+          return yellow;
+        }
+      }
+    }
+    
+
+    if(abs(red_reading - black_red_read) <= acceptable_range)
+    {
+      if(abs(blue_reading - black_blue_read) <= acceptable_range)
+      {
+        if(abs(both_reading - black_both_read) <= acceptable_range)
+        {
+          if(diff > 10)
+          {
+            Serial.println("black");
+            return black;
+          }
+        }
+      }
     }
 }
 
@@ -347,5 +353,68 @@ void stop_moving() {
 
   analogWrite(leftEnable, 0);
   analogWrite(rightEnable, 0);
+}
+void setupWifi()
+{
+  if (WiFi.status() == WL_NO_MODULE) {
+    Serial.println("Communication with WiFi module failed!");
+    while (true); //don't continue
+  }
 
+  String fv = WiFi.firmwareVersion();
+
+  if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
+    Serial.println("Please upgrade the firmware");
+  }
+
+  while (status != WL_CONNECTED) {
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(ssid);
+    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+    status = WiFi.begin(ssid, pass);
+    // wait 10 seconds for connection:
+    delay(1000);
+  }
+
+  Serial.println("Connected to wifi");
+  printWifiStatus();
+  Serial.println("\nStarting connection to server...");
+}
+
+void printWifiStatus() {
+  // print the SSID of the network you're attached to:
+  Serial.print("SSID: ");
+  Serial.println(WiFi.SSID());
+
+  // print your board's IP address:
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+
+  // print the received signal strength:
+  long rssi = WiFi.RSSI();
+  Serial.print("signal strength (RSSI):");
+  Serial.print(rssi);
+  Serial.println(" dBm");
+}
+
+void send_readings(const char theRoute[],int blue_reading, int red_reading, int both_reading) {
+  if(client.connect(server, portNumber))
+  {
+    String message = "red=";
+    message += String(red_reading);
+    message += "blue=";
+    message += String(blue_reading);
+    message += "both=";
+    message += String(both_reading);
+    client.println(theRoute);
+    client.print("Host: ");
+    client.println(server);
+    client.println("Content-Type: application/x-www-form-urlencoded");
+    client.print("Content-Length: ");
+    int postBodyLength = message.length();
+    client.println(message);
+    client.println();
+    client.print(message);
+  }
 }
