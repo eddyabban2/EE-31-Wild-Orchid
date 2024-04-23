@@ -7,14 +7,13 @@ char pass[] = "designdesign";  // your network password
 char server[] = "ee31.ece.tufts.edu";  // server
 int portNumber = 80;
 
-const char UID[] = "F392FC86D8D7";
-
-char postBody[] = "data=eddywashere";
-
 int status = WL_IDLE_STATUS;
 
-const char getRoute[] = "GET /F392FC86D8D7/F392FC86D8D7 HTTP/1.1";
-const char postRoute[] = "POST /F392FC86D8D7/F392FC86D8D7 HTTP/1.1";
+String our_id = "F392FC86D8D7";
+String companion_team_id = "F79721857DC5";
+
+String getRoute = "GET /" + companion_team_id + "/" + our_id + " HTTP/1.1";
+String postRoute = "POST /" + our_id + "/" + companion_team_id + " HTTP/1.1";
 
 WiFiClient client;
 
@@ -22,9 +21,6 @@ void setup() {
   //Initialize serial and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {} // wait for serial port to connect. Needed for native USB port only
-
-
-  // check for the WiFi module:
 
   if (WiFi.status() == WL_NO_MODULE) {
 
@@ -51,8 +47,7 @@ void setup() {
   printWifiStatus();
   Serial.println("\nStarting connection to server...");
 
-  // POST(postRoute, postBody);
-  GET(getRoute);
+  POST(postRoute, "Eddy was here");
 
 
 }
@@ -60,11 +55,6 @@ void setup() {
 void loop() {
   // if there are incoming bytes available
   // from the server, read them and print them:
-  
-  while (client.available()) {
-    char c = client.read();
-    Serial.write(c); 
-  }
 
   // if the server's disconnected, stop the client:
   if (!client.connected()) {
@@ -95,7 +85,7 @@ void printWifiStatus() {
   Serial.println(" dBm");
 }
 
-void POST(const char theRoute[], char *bodyMessage) {
+void POST(String theRoute, String message) {
   if(client.connect(server, portNumber))
   {
     //Serial.println("Entered POST");
@@ -104,17 +94,15 @@ void POST(const char theRoute[], char *bodyMessage) {
     client.println(server);
     client.println("Content-Type: application/x-www-form-urlencoded");
     client.print("Content-Length: ");
-    int postBodyLength = strlen(bodyMessage);
+    int postBodyLength = message.length();
     client.println(postBodyLength);
     client.println();
-    client.print(bodyMessage);
+    client.print(message);
   }
 }
 
-void GET(const char theRoute[]) {
+String GET(String theRoute) {
   if (client.connect(server, portNumber)) {
-    //Serial.println("Entered GET");
-  // Make a HTTP GET request:
     client.println(theRoute);
     client.print("Host: ");
     client.println(server);
@@ -126,8 +114,15 @@ void GET(const char theRoute[]) {
     if (!client.connected()) {
       client.stop();
     }
+    String result = "";
+    while (client.available()) {
+      result += client.read();
+    }
+    Serial.print("message got returing:");
+    Serial.println(result); 
+    return result;
   }
-}
 
+}
 
 
