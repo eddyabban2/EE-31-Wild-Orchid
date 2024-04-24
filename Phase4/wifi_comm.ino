@@ -45,10 +45,10 @@ void setup() {
   printWifiStatus();
   Serial.println("\nStarting connection to server...");
   String getRoute = "GET /" + our_id + "/" + companion_team_id + " HTTP/1.1";
-  String postRoute = "POST /" + our_id + "/" + companion_team_id + " HTTP/1.1";
-  POST(postRoute, "Hello_from_Wild_Orchid");
-  Serial.print("message gotten from get: ");
-  Serial.println(GET(getRoute));
+  String postRoute = "POST /" + companion_team_id + "/" + our_id  + " HTTP/1.1";
+  POST(postRoute, "Eddy_is_cool");
+  // Serial.print("message gotten from get: ");
+  // Serial.println(GET(getRoute));
 }
 
 void loop() {
@@ -86,6 +86,7 @@ void printWifiStatus() {
 }
 
 void POST(String theRoute, String message) {
+  message = "message=" + message;
   if(client.connect(server, portNumber))
   {
     client.println(theRoute);
@@ -105,7 +106,7 @@ String GET(String theRoute) {
     client.println(theRoute);
     client.print("Host: ");
     client.println(server);
-    //client.println("Connection: close");
+    // client.println("Connection: close");
     client.println();
     // get the message from the server
     // place in appropriate form and variable
@@ -125,6 +126,7 @@ String GET(String theRoute) {
 
 String process_message(String message)
 {
+  Serial.println(message);
   int index = 0;
   int count_new_line = 0;
   while(index < message.length() and count_new_line < 3)
