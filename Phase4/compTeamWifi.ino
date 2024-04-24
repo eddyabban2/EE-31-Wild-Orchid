@@ -9,11 +9,9 @@ int portNumber = 80;
 
 int status = WL_IDLE_STATUS;
 
-String our_id = "F79721857DC5";
-String companion_team_id = "F392FC86D8D7";
+String our_id = "F392FC86D8D7";
+String companion_team_id = "F79721857DC5";
 
-String getRoute = "GET /" + companion_team_id + "/" + our_id + " HTTP/1.1";
-String postRoute = "POST /" + our_id + "/" + companion_team_id + " HTTP/1.1";
 
 WiFiClient client;
 
@@ -46,10 +44,11 @@ void setup() {
   Serial.println("Connected to wifi");
   printWifiStatus();
   Serial.println("\nStarting connection to server...");
-
-  Serial.println(get(getRoute));
-
-
+  String getRoute = "GET /" + our_id + "/" + companion_team_id + " HTTP/1.1";
+  String postRoute = "POST /" + our_id + "/" + companion_team_id + " HTTP/1.1";
+  POST(postRoute, "Hello_from_Wild_Orchid");
+  Serial.print("message gotten from get: ");
+  Serial.println(GET(getRoute));
 }
 
 void loop() {
@@ -61,10 +60,11 @@ void loop() {
     Serial.println();
     Serial.println("disconnecting from server.");
     client.stop();
+  }
 
     // do nothing forevermore:
-    while (true);
-  }
+  Serial.println("message sent turning off");
+  while (true);
 }
 
 
@@ -88,7 +88,6 @@ void printWifiStatus() {
 void POST(String theRoute, String message) {
   if(client.connect(server, portNumber))
   {
-    //Serial.println("Entered POST");
     client.println(theRoute);
     client.print("Host: ");
     client.println(server);
@@ -114,15 +113,36 @@ String GET(String theRoute) {
     if (!client.connected()) {
       client.stop();
     }
+    delay(500);
     String result = "";
     while (client.available()) {
-      result += client.read();
+      char message = client.read();
+      result += message;
     }
-    Serial.print("message got returing:");
-    Serial.println(result); 
-    return result;
+    return process_message(result);
   }
+}
 
+String process_message(String message)
+{
+  int index = 0;
+  int count_new_line = 0;
+  while(index < message.length() and count_new_line < 3)
+  {
+    if(message[index] == '&')
+    {
+      count_new_line += 1;
+    }
+    index++;
+  }
+  index += 8;
+  String output_string = "";
+  while(index < message.length())
+  {
+    output_string += message[index];
+    index++;
+  }
+  return output_string;
 }
 
 
