@@ -1,23 +1,27 @@
 #include <SPI.h>
 #include <WiFiNINA.h>
 
-#define redPin 10
+#define redPin 10 // color detection blue and red
 #define bluePin 11
 #define batteryIndicatorLED 12
 #define dayIndicatorLED 13
 #define IRDector A3
-#define ambientLightPin A2
+
+#define ambientLightPin A2 // detectors 
 #define colorPin A1
 #define batteryPin A0
-#define leftFor 2
+
+#define leftFor 2 // motor control
 #define leftRev 3
 #define rightFor 7
 #define rightRev 8
-#define blueSig 0
+
+#define blueSig 0 // indicator LEDS 
 #define redSig 1
 #define greenSig 4
 #define yellowSig 6
-#define brakeLights 5
+
+#define brakeLights 5 // Lights
 #define headLights 9
 #define leftTurnSignal A4
 #define rightTurnSignal A5
@@ -48,8 +52,6 @@ void setup() {
   pinMode(leftRev, OUTPUT);
   pinMode(rightFor, OUTPUT);
   pinMode(rightRev, OUTPUT);
-  pinMode(leftEnable, OUTPUT);
-  pinMode(rightEnable, OUTPUT);
   pinMode(redPin, OUTPUT);
   pinMode(bluePin, OUTPUT);
   pinMode(batteryIndicatorLED, OUTPUT);
@@ -61,13 +63,11 @@ void setup() {
   pinMode(redSig, OUTPUT);
   pinMode(greenSig, OUTPUT);
   pinMode(yellowSig, OUTPUT);
-  analogWrite(leftEnable, 255);
-  analogWrite(rightEnable, 255);
   setupWifi();
 }
 void loop() {
-  botOne();
-  //colorTest();
+  // botOne();
+  // colorTest();
   while (true);
 }
 
@@ -87,15 +87,22 @@ void botOne() {
   }
   // Turn on the red led
   digitalWrite(redSig, HIGH);
-  while(true); 
+
   // Use light based communication to tell the other bot that it can go
   // add light based communication here
+  for(int i = 0; i < 2; i++)
+  {
+    digitalWrite(headLights, HIGH);
+    delay(250);
+    digitalWrite(headLights, LOW);
+    delay(250);
 
+  }
   // Get a light based message back from bot 2, flash headlights and brake lights, beep horn twice
   // add light based communication here
 
   // Go on red until wall collision or end of red
-  while (determine_color() == red and not determine_collision()) {
+  while (not determine_collision()) {
     forward(50);
   }
   digitalWrite(redSig, LOW);
@@ -178,21 +185,21 @@ color determine_color() {
   int diff = red_reading - blue_reading;
   int acceptable_range = 10;
 
-  int blue_blue_read = 25;
-  int blue_red_read = 32;
-  int blue_both_read = 61;
+  int blue_blue_read = 21;
+  int blue_red_read = 29;
+  int blue_both_read = 52;
 
-  int red_blue_read = 15;
-  int red_red_read = 74;
-  int red_both_read = 86;
+  int red_blue_read = 12;
+  int red_red_read = 68;
+  int red_both_read = 80;
 
-  int yellow_blue_read = 51;
-  int yellow_red_read = 105;
-  int yellow_both_read = 149;
+  int yellow_blue_read = 45;
+  int yellow_red_read = 95;
+  int yellow_both_read = 139;
 
-  int black_blue_read = 7;
-  int black_red_read = 26;
-  int black_both_read = 36;
+  int black_blue_read = 5;
+  int black_red_read = 21;
+  int black_both_read = 30;
 
   Serial.print("Blue, Red, Both Readings: ");
   Serial.print(blue_reading);
@@ -272,7 +279,6 @@ void forward(int duration)  // duration in sec
 
 void reverse(int duration)  // duration in sec
 {
-  analogWrite(rightEnable, 240);
   digitalWrite(leftRev, HIGH);
   digitalWrite(rightRev, HIGH);
   digitalWrite(leftFor, LOW);
@@ -280,13 +286,10 @@ void reverse(int duration)  // duration in sec
   delay(duration);
   digitalWrite(leftRev, LOW);
   digitalWrite(rightRev, LOW);
-  analogWrite(rightEnable, 255);
 }
 
 void pivot_right(int angle)  // duration in sec
 {
-  analogWrite(rightEnable, 127);
-  analogWrite(leftEnable, 127);
   digitalWrite(leftRev, LOW);
   digitalWrite(rightRev, HIGH);
   digitalWrite(leftFor, HIGH);
@@ -295,13 +298,9 @@ void pivot_right(int angle)  // duration in sec
   delay((int)delay_time - 100);
   digitalWrite(rightRev, LOW);
   digitalWrite(leftFor, LOW);
-  analogWrite(leftEnable, 255);
-  analogWrite(rightEnable, 255);
 }
 
 void pivot_left(int angle) {
-  analogWrite(leftEnable, 255);
-  analogWrite(rightEnable, 255);
   digitalWrite(leftRev, HIGH);
   digitalWrite(rightRev, LOW);
   digitalWrite(leftFor, LOW);
@@ -310,14 +309,10 @@ void pivot_left(int angle) {
   delay((int)delay_time);
   digitalWrite(leftRev, LOW);
   digitalWrite(rightFor, LOW);
-  analogWrite(leftEnable, 255);
-  analogWrite(rightEnable, 255);
 }
 
 void turn_left(int duration) {
   digitalWrite(dayIndicatorLED, HIGH);
-  analogWrite(leftEnable, 20);
-  analogWrite(rightEnable, 200);
   digitalWrite(leftRev, LOW);
   digitalWrite(rightRev, LOW);
   digitalWrite(leftFor, HIGH);
@@ -325,16 +320,13 @@ void turn_left(int duration) {
   delay(duration);
   digitalWrite(leftFor, LOW);
   digitalWrite(rightFor, LOW);
-  analogWrite(leftEnable, 255);
-  analogWrite(rightEnable, 255);
   digitalWrite(dayIndicatorLED, LOW);
 }
 
 void stop_moving() {
-
-  analogWrite(leftEnable, 0);
-  analogWrite(rightEnable, 0);
+  delay(20);
 }
+
 void setupWifi() {
   Serial.println("\nStarting connection to server...");
   if (WiFi.status() == WL_NO_MODULE) {
