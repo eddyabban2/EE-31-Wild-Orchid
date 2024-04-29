@@ -370,3 +370,13 @@ void printWifiStatus() {
   Serial.print(rssi);
   Serial.println(" dBm");
 }
+
+void stop(time){ //time in ms/2
+  digitalWrite(brakelights,HIGH);
+  while(time>0) {
+    forward(1);
+    reverse(1);
+    time = time - 1;
+  }
+  digitalWrite(brakelights,LOW);
+}
