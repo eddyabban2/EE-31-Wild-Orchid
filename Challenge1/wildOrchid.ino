@@ -32,6 +32,7 @@ char server[] = "ee31.ece.tufts.edu";  // server
 int portNumber = 80;
 
 int status = WL_IDLE_STATUS;
+int battery_offset = 0;
 
 String our_id = "F392FC86D8D7";
 String companion_team_id = "F79721857DC5";
@@ -66,12 +67,15 @@ void setup() {
   setupWifi();
 }
 void loop() {
-  // botOne();
+  botOne();
+  // determine_collision();
   // colorTest();
-  while (true);
+  // digitalWrite(bluePin, HIGH);
+  // delay(100000);
 }
 
 void botOne() {
+  battery_offset = 2;
   // Flash blue and red LEDS three times to show the bot is out of diagnostic state
   showDiagnostic();
   // Move forward
@@ -79,32 +83,59 @@ void botOne() {
   while (not determine_collision()) {
     forward(50);
   }
-  pivot_left(250);
+  pivot_left(200);
+  forward(100);
   // Turn 180 degrees
   // Move forward until it finds red
-  while (determine_color() != red and determine_color() != red and determine_color() != red) {
+  while (determine_color() != red) {
     forward(50);
   }
   // Turn on the red led
   digitalWrite(redSig, HIGH);
 
-  // Use light based communication to tell the other bot that it can go
-  // add light based communication here
+  // flash headlights to fake communication
   for(int i = 0; i < 2; i++)
   {
     digitalWrite(headLights, HIGH);
     delay(250);
     digitalWrite(headLights, LOW);
     delay(250);
-
   }
-  // Get a light based message back from bot 2, flash headlights and brake lights, beep horn twice
-  // add light based communication here
+  delay(500);
+
+  // now the other bot acknolwedges the messages by flashing their headlights and brake likes and beeps their horn twice 
+  // then they re transmit the same signal we sent to them back to us
+
+  // once we recieve the message from them, flash headlights and brake lights, beep horn twice
+  for(int i = 0; i < 2; i++)
+  {
+    digitalWrite(headLights, HIGH);
+    digitalWrite(brakeLights, HIGH);
+    delay(250);
+    digitalWrite(headLights, LOW);
+    digitalWrite(brakeLights, LOW);
+    delay(250);
+  }
+
+  forward(300);
+  pivot_left(100);
+
+
 
   // Go on red until wall collision or end of red
   while (not determine_collision()) {
-    forward(50);
+    if(determine_color() == red or determine_color() == red or determine_color() == red)
+    {
+      pivot_right(10);
+    }
+    else 
+    {
+      pivot_left(10);
+    }
   }
+  digitalWrite(redSig, LOW);
+  while(true);
+
   digitalWrite(redSig, LOW);
 
 
@@ -178,28 +209,27 @@ bool determine_collision() {
 }
 
 color determine_color() {
-  int brightness = 0;
-  int blue_reading = take_reading(HIGH, LOW) + brightness;
-  int red_reading = take_reading(LOW, HIGH) + brightness;
-  int both_reading = take_reading(HIGH, HIGH) + brightness;
+  int blue_reading = take_reading(HIGH, LOW) - battery_offset;
+  int red_reading = take_reading(LOW, HIGH) - battery_offset;
+  int both_reading = take_reading(HIGH, HIGH) - battery_offset;
   int diff = red_reading - blue_reading;
-  int acceptable_range = 10;
+  int acceptable_range = 7;
 
-  int blue_blue_read = 21;
-  int blue_red_read = 29;
-  int blue_both_read = 52;
+  int blue_blue_read = 19;
+  int blue_red_read = 12;
+  int blue_both_read = 22;
 
-  int red_blue_read = 12;
-  int red_red_read = 68;
-  int red_both_read = 80;
+  int red_blue_read = 3;
+  int red_red_read = 21;
+  int red_both_read = 26;
 
-  int yellow_blue_read = 45;
-  int yellow_red_read = 95;
-  int yellow_both_read = 139;
+  int yellow_blue_read = 13;
+  int yellow_red_read = 30;
+  int yellow_both_read = 43;
 
-  int black_blue_read = 5;
-  int black_red_read = 21;
-  int black_both_read = 30;
+  int black_blue_read = 4;
+  int black_red_read = 11;
+  int black_both_read = 16;
 
   Serial.print("Blue, Red, Both Readings: ");
   Serial.print(blue_reading);
@@ -212,7 +242,7 @@ color determine_color() {
   if (abs(red_reading - blue_red_read) <= acceptable_range) {
     if (abs(blue_reading - blue_blue_read) <= acceptable_range) {
       if (abs(both_reading - blue_both_read) <= acceptable_range) {
-        if (diff < 15) {
+        if (diff < 7) {
           Serial.println("blue");
           return blue;
         }
@@ -241,7 +271,7 @@ color determine_color() {
   if (abs(red_reading - black_red_read) <= acceptable_range) {
     if (abs(blue_reading - black_blue_read) <= acceptable_range) {
       if (abs(both_reading - black_both_read) <= acceptable_range) {
-        if (diff > 10) {
+        if (diff > 7) {
           Serial.println("black");
           return black;
         }
@@ -254,12 +284,12 @@ color determine_color() {
 int take_reading(bool blue, bool red) {
   digitalWrite(bluePin, blue);
   digitalWrite(redPin, red);
-  delay(20);
+  delay(10);
   float sum = 0;
-  for (int i = 0; i < 30; i++) {
+  for (int i = 0; i < 10; i++) {
     sum += analogRead(colorPin);
   }
-  delay(20);
+  delay(10);
   digitalWrite(bluePin, LOW);
   digitalWrite(redPin, LOW);
   return sum / 30;
@@ -323,8 +353,14 @@ void turn_left(int duration) {
   digitalWrite(dayIndicatorLED, LOW);
 }
 
-void stop_moving() {
-  delay(20);
+void stop(int time){ //time in ms/2
+  digitalWrite(brakeLights,HIGH);
+  while(time > 0) {
+    forward(1);
+    reverse(1);
+    time = time - 1;
+  }
+  digitalWrite(brakeLights,LOW);
 }
 
 void setupWifi() {
@@ -369,14 +405,4 @@ void printWifiStatus() {
   Serial.print("signal strength (RSSI):");
   Serial.print(rssi);
   Serial.println(" dBm");
-}
-
-void stop(time){ //time in ms/2
-  digitalWrite(brakelights,HIGH);
-  while(time>0) {
-    forward(1);
-    reverse(1);
-    time = time - 1;
-  }
-  digitalWrite(brakelights,LOW);
 }
