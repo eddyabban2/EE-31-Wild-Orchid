@@ -71,13 +71,13 @@ void setup() {
 }
 void loop() {
   // botOne();
-  //colorTest();
-  //determine_color();
-  while(not determine_collision()) {
-    find(red);
-    forward(50);
-    delay(50);
-  }
+  // colorTest();
+  determine_color();
+  // while(not determine_collision()) {
+  //   find(red);
+  //   forward(50);
+  //   delay(50);
+  // }
   // String newRoute = "GET /" + our_id + "/" + our_id + " HTTP/1.1";
   // String message = GET(newRoute);
   // Serial.println(message);
