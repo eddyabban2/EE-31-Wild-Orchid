@@ -55,6 +55,7 @@ enum Color { red,
 void setup() {
   Serial.begin(9600);
   Serial.println("staring up");
+  pinMode(IRDector, INPUT);
   pinMode(leftFor, OUTPUT);
   pinMode(leftRev, OUTPUT);
   pinMode(rightFor, OUTPUT);
@@ -100,10 +101,9 @@ void botOne() {
   digitalWrite(headLights, HIGH); //activate head lights for night
 
   // Move for on yellow until other bot detected -- then stop and warn other bot 
-  while (not determine_collision() /*or GET(getRoute) != "collision_incoming"*/) {
+  while (not determine_collision()) { /*or GET(getRoute) != "collision_incoming"*/
     //find(yellow);
     forward(100);
-    stop(10);
   }
 
   stop(500);
@@ -117,6 +117,8 @@ void botOne() {
     digitalWrite(headLights, HIGH);
     delay(500);
   }
+
+  digitalWrite(headLights, LOW);
 
   //Serial.println("COLLISION AVOIDED"); //let the user know collision avoided
 
@@ -136,7 +138,7 @@ bool determine_collision() {
   int reading = analogRead(IRDector);
   Serial.print("reading:");
   Serial.println(reading);
-  bool output = reading > 350;
+  bool output = reading > 35;
   return output;
 }
 
