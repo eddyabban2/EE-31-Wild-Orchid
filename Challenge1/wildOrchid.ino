@@ -72,8 +72,13 @@ void setup() {
   digitalWrite(yellowSig, LOW);
 }
 void loop() {
-  // botOne();
-  determine_collision();
+  botOne();
+  // botTwo();
+  // while(not determine_collision())
+  // {
+  //   findLeft(blue);
+  // }
+  // while(true);
   // colorTest();
   // determine_color();
   // String newRoute = "GET /" + our_id + "/" + our_id + " HTTP/1.1";
@@ -87,10 +92,10 @@ void botOne() {
   // Move forward
   // Detect the wall
   while (not determine_collision()) {
-    forward(50);
+    forward(30);
   }
   stop(1000);
-  pivot_left(750);
+  pivot_left(850);
   // Turn 180 degrees
   // Move forward until it finds red
   while (determine_color() != red) {
@@ -145,12 +150,12 @@ void botOne() {
   // When you receive bot 2’s signal blink red led 3 times
   blinkRed(3);
   // Turn on green led
-  digitalWrite(greenSig, HIGH);
+  // digitalWrite(greenSig, HIGH);
   // Back up
   reverse(100);
   stop(1000);
   // Make 90 degree left turn (exactly 90)
-  pivot_left(300);
+  pivot_left(400);
   stop(1000);
   // Go until detect yellow
   while (determine_color() != yellow and determine_color() != yellow and determine_color() != yellow) {
@@ -160,9 +165,9 @@ void botOne() {
   // Beep the horn twice
   // figure out how to beep the horn
 
- 
-  pivot_left(300);
-  stop(1000);
+  forward(400);
+  pivot_left(200);
+  stop(1);
   // Follow yellow path until the end
   while (not determine_collision()) {
     find(yellow);
@@ -214,30 +219,31 @@ void botTwo() {
     forward(50);
   }
   stop(1000);
-  pivot_left(750);
+  pivot_left(800);
   // Turn 180 degrees
   // Move forward until it finds red
-  while (determine_color() != blue) {
+  while (determine_color() != blue and determine_color() != blue and determine_color() != blue) {
     forward(100);
   }
   // Turn on the red led
   digitalWrite(blueSig, HIGH);
   stop(10);
-
-  pivot_right(300);
+  //alligning with the blue track
+  pivot_right(400);
+  forward(500);
   // Go on red until wall collision or end of red
   while (not determine_collision()) {
-    find(blue);
+    findLeft(blue);
   }
   digitalWrite(blueSig, LOW);
   digitalWrite(greenSig, HIGH);
-  while (GET(getRoute) != "bot_one_done") {
-    stop(500);
-  }
+  // while (GET(getRoute) != "bot_one_done") {
+  //   stop(500);
+  // }
 
 
 
-  // Blink red led
+  // Blink green led
   blinkGreen(2);
   // Back up
   reverse(100);
@@ -257,7 +263,7 @@ void botTwo() {
   // figure out how to beep the horn
 
  
-  pivot_right(90);
+  pivot_right(350);
   stop(1000);
   // Follow yellow path until the end
   while (not determine_collision()) {
@@ -266,7 +272,7 @@ void botTwo() {
   digitalWrite(yellowSig, HIGH);
   stop(1000);
 
-  pivot_right(90);
+  pivot_right(350);
   stop(1000);
   // Turn left and go to end
   forward(300);
@@ -330,17 +336,17 @@ Color determine_color() {
   // String currPR = "POST /" + our_id + "/" + our_id  + " HTTP/1.1";
   // String readings = "blue:" + String(blue_reading) + "red:" + String(red_reading) + "both:"+ String(both_reading);
   // POST(currPR, readings);
-  int blue_blue_read = 873;
-  int blue_red_read = 898;
-  int blue_both_read = 779;
+  int blue_blue_read = 853;
+  int blue_red_read = 912;
+  int blue_both_read = 781;
 
-  int red_blue_read = 910;
-  int red_red_read = 700;
-  int red_both_read = 645;
+  int red_blue_read = 880;
+  int red_red_read = 688;
+  int red_both_read = 624;
 
-  int yellow_blue_read = 650;
-  int yellow_red_read = 588;
-  int yellow_both_read = 465;
+  int yellow_blue_read = 580;
+  int yellow_red_read = 548;
+  int yellow_both_read = 420;
 
   int black_blue_read = 937;
   int black_red_read = 917;
@@ -603,10 +609,23 @@ void find(Color c) {
   Serial.println("got into find");
   if (determine_color() == c or determine_color() == c or determine_color() == c) {
     Serial.println("color is correct pvioting right");
-    forward(500);
+    forward(300);
     pivot_right(50);
   } else {
     Serial.println("color is incorrect pivoting left");
     pivot_left(50);
+  }
+}
+
+
+void findLeft(Color c) {
+  Serial.println("got into find");
+  if (determine_color() == c) {
+    Serial.println("color is correct pvioting right");
+    forward(200);
+    pivot_left(30);
+  } else {
+    Serial.println("color is incorrect pivoting left");
+    pivot_right(30);
   }
 }
